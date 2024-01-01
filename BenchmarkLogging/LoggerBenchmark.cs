@@ -21,6 +21,7 @@ public partial class LoggerBenchmark
     private const string Message1 = "Test message: int {Int1}";
     private const string Message2 = "Test message: int {Int1} and {String1}";
     private const string Message3 = "Test message: int {Int1}, {String1} and {Time}";
+    private const string MessageRef3 = "Test message: int {String1}, {String2} and {String3}";
 
     private ILogger _logger = null!;
     private readonly DateTime _startTime = DateTime.UtcNow;
@@ -69,6 +70,9 @@ public partial class LoggerBenchmark
     [LoggerMessage(Level = LogLevel.Debug, Message = Message3)]
     partial void LoggerMessage3(int int1, string string1, DateTime time);
 
+    [LoggerMessage(Level = LogLevel.Debug, Message = MessageRef3)]
+    partial void LoggerMessageRef3(string string1, string string2, string string3);
+
 #if ENABLE_MEL
     [Benchmark, BenchmarkCategory("0")]
     public void MEL0()
@@ -92,6 +96,12 @@ public partial class LoggerBenchmark
     public void MEL3()
     {
         _logger.LogDebug(Message3, IntValue, StringValue, _startTime);
+    }
+
+    [Benchmark, BenchmarkCategory("3")]
+    public void MELRef3()
+    {
+        _logger.LogDebug(MessageRef3, StringValue, StringValue, StringValue);
     }
 #endif
 
@@ -157,6 +167,12 @@ public partial class LoggerBenchmark
         _logger.Debug(Message3, IntValue, StringValue, _startTime);
     }
 
+    [Benchmark, BenchmarkCategory("3")]
+    public void HelperRef3()
+    {
+        _logger.Debug(Message3, StringValue, StringValue, StringValue);
+    }
+
     [Benchmark(Baseline = true), BenchmarkCategory("0")]
     public void SourceGenerator0()
     {
@@ -179,5 +195,11 @@ public partial class LoggerBenchmark
     public void SourceGenerator3()
     {
         LoggerMessage3(IntValue, StringValue, _startTime);
+    }
+    
+    [Benchmark, BenchmarkCategory("3")]
+    public void SourceGeneratorRef3()
+    {
+        LoggerMessageRef3(StringValue, StringValue, StringValue);
     }
 }
